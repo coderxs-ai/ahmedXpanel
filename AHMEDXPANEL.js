@@ -1,10 +1,9 @@
 // ══ Inline Script #1 ══
 
-        window.AHMEDXPANEL_MASTER_CONFIG = {
-            url: "https://era-ka-store-default-rtdb.firebaseio.com",
-            key: "AIzaSyDiMcsz86sfFSCxxKWlPDESY7aEmmt6wcc"
+window.AHMEDXPANEL_MASTER_CONFIG = {
+            url: "https://ahmedxpanel-default-rtdb.firebaseio.com",
+            key: "AIzaSyCf3htbzQHhVXjJ4zxyOkhCDNen97ZW5PU"
         };
-    
 
 // ══ Inline Script #2 ══
 window.AHMEDXPANEL_LOGO_URI="AHMEDXPANEL_logo.jpg";
@@ -14062,12 +14061,12 @@ Error: ${_t}`)
                         className: "relative ahmedxpanel-rgb text-4xl font-bold italic tracking-tight opacity-0 animate-fade-in",
                         children: [r.jsx("span", {
                             className: "ahmedxpanel-rgb text-[#6acfff]",
-                            children: "E R A"
+                            children: "AHMED"
                         }), r.jsx("span", {
                             children: " X "
                         }), r.jsxs("span", {
                             className: "relative",
-                            children: ["ARMY", r.jsx("span", {
+                            children: ["PANEL", r.jsx("span", {
                                 className: "absolute top-0 right-0 w-2 h-2 bg-[#6acfff] rounded-full animate-glint"
                             })]
                         })]
@@ -14326,7 +14325,7 @@ Error: ${_t}`)
                                 type: "text",
                                 value: f,
                                 onChange: _ => p(_.target.value),
-                                placeholder: "https://your-project.firebaseio.com",
+                                placeholder: "https://ahmedxpanel-default-rtdb.firebaseio.com",
                                 className: "w-full px-4 py-3 rounded-xl bg-muted/50 border border-border focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none text-sm text-foreground placeholder:text-muted-foreground/50 transition-all font-mono"
                             })]
                         }), r.jsxs("div", {
@@ -15464,7 +15463,7 @@ function p1({
                             children: "Connected"
                         })]
                     }), r.jsxs("a", {
-                         href: "https://t.me/eraXarmy",
+                         href: "https://t.me/ahmedXpanel",
                         target: "_blank",
                         rel: "noopener noreferrer",
                         className: "inline-block",
@@ -15705,7 +15704,6 @@ function y1() {
     })
 }
 Y0.createRoot(document.getElementById("root")).render(r.jsx(y1, {}));
-    
 
 // ══ Inline Script #4 ══
 
@@ -15728,7 +15726,6 @@ Y0.createRoot(document.getElementById("root")).render(r.jsx(y1, {}));
   c.addEventListener('mouseenter',function(){this.style.background='rgba(255,255,255,0.09)';this.style.color='#aaa';});
   c.addEventListener('mouseleave',function(){this.style.background='rgba(255,255,255,0.04)';this.style.color='#555';});
 })();
-
 
 // ══ Inline Script #5 ══
 
