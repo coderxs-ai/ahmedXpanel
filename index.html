@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AHMEDXPANEL - Under Maintenance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+        body{background:#0a0b10;background-image:radial-gradient(at 0% 0%,rgba(120,40,200,.25) 0,transparent 50%),radial-gradient(at 100% 100%,rgba(0,200,255,.2) 0,transparent 50%);min-height:100vh;display:flex;align-items:center;justify-content:center;color:#fff;padding:20px;transition:opacity .5s}
+        .loading-screen{position:fixed;inset:0;background:#0a0b10;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999}
+        .loading-screen .spinner{width:50px;height:50px;border:3px solid rgba(0,242,254,.2);border-top-color:#00f2fe;border-radius:50%;animation:spin 1s linear infinite}
+        .loading-screen p{margin-top:15px;color:#64748b;font-size:.85rem}
+        .loading-screen.hidden{display:none}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(16px);border-radius:24px;padding:40px 30px;max-width:620px;width:100%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.5);animation:fadeIn 1s}
+        .card.hidden{display:none}
+        .brand{font-size:2.4rem;font-weight:900;letter-spacing:2px;background:linear-gradient(135deg,#00f2fe,#4facfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+        .badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(255,154,0,.15),rgba(255,90,0,.15));border:1px solid rgba(255,154,0,.4);color:#ffaa00;padding:6px 16px;border-radius:50px;font-size:.85rem;font-weight:600;margin-bottom:25px}
+        .gear{position:relative;margin:20px auto;width:100px;height:100px;display:flex;align-items:center;justify-content:center;background:rgba(0,242,254,.08);border-radius:50%;border:2px dashed rgba(0,242,254,.4);animation:rot 10s linear infinite}
+        .gear i{font-size:2.8rem;color:#00f2fe}
+        h2{font-size:1.7rem;font-weight:700;margin-bottom:10px}
+        .desc{color:#a0aec0;font-size:.95rem;line-height:1.7;margin-bottom:25px}
+        .ubox{background:rgba(0,0,0,.3);border-radius:14px;padding:18px;text-align:left;margin-bottom:25px;border-left:4px solid #00f2fe}
+        .ubox h4{font-size:.95rem;color:#00f2fe;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+        .ulist{list-style:none}
+        .ulist li{font-size:.88rem;color:#cbd5e1;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+        .dot{width:8px;height:8px;background:#10b981;border-radius:50%;display:inline-block;box-shadow:0 0 8px #10b981;animation:pulse 1.5s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+        .pbar{width:100%;height:10px;background:rgba(255,255,255,.08);border-radius:10px;overflow:hidden;margin-bottom:30px}
+        .pfill{height:100%;background:linear-gradient(90deg,#00f2fe,#4facfe);border-radius:10px;transition:width 1s ease}
+        .pinfo{display:flex;justify-content:space-between;font-size:.82rem;color:#94a3b8;margin-bottom:8px}
+        .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:12px;text-decoration:none;font-size:.9rem;font-weight:600;transition:.3s;border:none;cursor:pointer}
+        .bw{background:#25D366;color:#fff}.bw:hover{background:#1da851;transform:translateY(-2px);box-shadow:0 5px 15px rgba(37,211,102,.4)}
+        .bt{background:#0088cc;color:#fff}.bt:hover{background:#0077b5;transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,136,204,.4)}
+        .footer{margin-top:20px;font-size:.75rem;color:#64748b}
+        .firebase-badge{position:fixed;bottom:15px;right:15px;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:20px;font-size:.75rem;font-weight:600;backdrop-filter:blur(10px)}
+        .fb-connected{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.4);color:#10b981}
+        .fb-connecting{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4);color:#f59e0b}
+        .fb-dot{width:8px;height:8px;border-radius:50%;box-shadow:0 0 8px currentColor;animation:pulse 1.5s infinite}
+        .countdown{background:rgba(0,0,0,.3);border-radius:14px;padding:18px;margin-bottom:20px}
+        .countdown h4{font-size:.9rem;color:#f59e0b;margin-bottom:8px}
+        .countdown .timer{font-size:1.3rem;font-weight:700;color:#fff;font-family:monospace}
+        @keyframes rot{100%{transform:rotate(360deg)}}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        @media(max-width:480px){.brand{font-size:1.8rem}.card{padding:25px 18px}.btn{width:100%;justify-content:center}}
+    </style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div class="loading-screen" id="loadingScreen">
+    <div class="spinner"></div>
+    <p><i class="fa-solid fa-tower-broadcast"></i> Connecting to Firebase...</p>
+</div>
+
+<!-- Maintenance Card -->
+<div class="card hidden" id="maintCard">
+    <h1 class="brand">AHMEDXPANEL</h1>
+    <div class="badge"><i class="fa-solid fa-crown"></i> OWNER: HUJAIFA AHMED</div>
+    <div class="gear"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+    <h2>⚙️ System Under Maintenance</h2>
+    <p class="desc" id="maintMsg">Panel par kaam chal raha hai. Naye features aur fresh stock ke sath upgrade ho raha hai. Jald hi live ho jayega!</p>
+    
+    <div class="ubox">
+        <h4><i class="fa-solid fa-clock-rotate-left"></i> Current Updates:</h4>
+        <ul class="ulist" id="updatesList">
+            <li><span class="dot"></span> Naye fresh numbers add ho rahe hain</li>
+            <li><span class="dot"></span> Server speed & database optimization</li>
+            <li><span class="dot"></span> Fast OTP / Delivery system setup</li>
+            <li><span class="dot"></span> Security updates & bug fixes</li>
+        </ul>
+    </div>
+    
+    <div class="pinfo"><span>Update Progress</span><span id="progressPercent">80%</span></div>
+    <div class="pbar"><div class="pfill" id="progressBar" style="width:80%"></div></div>
+    
+    <div class="countdown" id="countdownBox" style="display:none">
+        <h4><i class="fa-solid fa-hourglass-half"></i> Estimated Time Remaining:</h4>
+        <div class="timer" id="countdownTimer">--:--:--</div>
+    </div>
+    
+    <div class="btns" id="contactBtns">
+        <a href="https://wa.me/" target="_blank" class="btn bw"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+        <a href="https://t.me/" target="_blank" class="btn bt"><i class="fa-brands fa-telegram"></i> Telegram</a>
+    </div>
+    <div class="footer">&copy; 2025 AHMEDXPANEL | Managed by <b>Hujaifa Ahmed</b></div>
+</div>
+
+<!-- Firebase Badge -->
+<div class="firebase-badge fb-connecting" id="fbBadge">
+    <span class="fb-dot" style="background:currentColor"></span>
+    <span id="fbStatus">Connecting...</span>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+// ==========================================
+// 🔥 FIREBASE CONFIG - APNA CONFIG YAHAN PASTE KARO
+// ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCf3htbzQHhVXjJ4zxyOkhCDNen97ZW5PU",
+  authDomain: "ahmedxpanel.firebaseapp.com",
+  projectId: "ahmedxpanel",
+  storageBucket: "ahmedxpanel.firebasestorage.app",
+  messagingSenderId: "1094289210487",
+  appId: "1:1094289210487:web:e1c8e4e5712ca19dc75a72",
+  measurementId: "G-MMWJE9GTGR"
+};
+
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ==========================================
+// REAL-TIME MAINTENANCE CHECK
+// ==========================================
+function initMaintenanceListener() {
+    // Listen to maintenance status in real-time
+    db.ref('system/maintenance').on('value', (snapshot) => {
+        const data = snapshot.val();
+        
+        // Hide loading, show content
+        document.getElementById('loadingScreen').classList.add('hidden');
+        
+        if (!data || data.enabled === true || data.enabled === undefined) {
+            // MAINTENANCE IS ON - Show maintenance page
+            document.getElementById('maintCard').classList.remove('hidden');
+            
+            // Update custom message if exists
+            if (data && data.message) {
+                document.getElementById('maintMsg').textContent = data.message;
+            }
+            
+            // Update progress
+            if (data && data.progress) {
+                document.getElementById('progressPercent').textContent = data.progress + '%';
+                document.getElementById('progressBar').style.width = data.progress + '%';
+            }
+            
+            // Update contact links
+            if (data && data.whatsapp) {
+                document.querySelector('.bw').href = 'https://wa.me/' + data.whatsapp;
+            }
+            if (data && data.telegram) {
+                document.querySelector('.bt').href = 'https://t.me/' + data.telegram;
+            }
+            
+            // Custom updates list
+            if (data && data.updates && data.updates.length > 0) {
+                let html = '';
+                data.updates.forEach(u => {
+                    html += `<li><span class="dot"></span> ${u}</li>`;
+                });
+                document.getElementById('updatesList').innerHTML = html;
+            }
+            
+            // Countdown timer
+            if (data && data.estimatedEnd) {
+                document.getElementById('countdownBox').style.display = 'block';
+                startCountdown(data.estimatedEnd);
+            } else {
+                document.getElementById('countdownBox').style.display = 'none';
+            }
+            
+            updateFirebaseBadge(true);
+            
+        } else {
+            // MAINTENANCE IS OFF - Redirect to admin panel!
+            updateFirebaseBadge(true);
+            
+            // Show redirect message
+            document.getElementById('maintCard').classList.remove('hidden');
+            document.getElementById('maintCard').innerHTML = `
+                <div class="gear" style="border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.1)">
+                    <i class="fa-solid fa-check" style="color:#10b981;font-size:2.5rem"></i>
+                </div>
+                <h2 style="color:#10b981">Panel is LIVE!</h2>
+                <p class="desc">Redirecting to AHMEDXPANEL...</p>
+                <div style="width:50px;height:50px;border:3px solid rgba(16,185,129,.2);border-top-color:#10b981;border-radius:50%;animation:spin 1s linear infinite;margin:20px auto"></div>
+            `;
+            
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'ahmedXpanel.html';
+            }, 2000);
+        }
+    }, (error) => {
+        console.error('Firebase Error:', error);
+        document.getElementById('loadingScreen').classList.add('hidden');
+        document.getElementById('maintCard').classList.remove('hidden');
+        updateFirebaseBadge(false);
+    });
+}
+
+// Countdown Timer
+let countdownInterval;
+function startCountdown(endTime) {
+    if (countdownInterval) clearInterval(countdownInterval);
+    countdownInterval = setInterval(() => {
+        let now = Date.now();
+        let diff = endTime - now;
+        if (diff <= 0) {
+            document.getElementById('countdownTimer').textContent = '00:00:00';
+            clearInterval(countdownInterval);
+            return;
+        }
+        let h = Math.floor(diff / 3600000);
+        let m = Math.floor((diff % 3600000) / 60000);
+        let s = Math.floor((diff % 60000) / 1000);
+        document.getElementById('countdownTimer').textContent =
+            String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }, 1000);
+}
+
+// Firebase Badge
+function updateFirebaseBadge(connected) {
+    let badge = document.getElementById('fbBadge');
+    let status = document.getElementById('fbStatus');
+    if (connected) {
+        badge.className = 'firebase-badge fb-connected';
+        status.textContent = '🔥 Firebase Connected';
+    } else {
+        badge.className = 'firebase-badge fb-connecting';
+        status.textContent = '⚠️ Connection Error';
+    }
+}
+
+// Start listening
+initMaintenanceListener();
+</script>
+
+</body>
+</html>
