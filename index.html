@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERA Firebase Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #05080f;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* ── Animated Mesh Gradient Background ── */
+        .mesh-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 80% 60% at 10% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 90% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 50% 50%, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
+            animation: meshMove 15s ease-in-out infinite alternate;
+        }
+        @keyframes meshMove {
+            0% { transform: scale(1) rotate(0deg); }
+            100% { transform: scale(1.1) rotate(3deg); }
+        }
+
+        /* ── Floating Particles ── */
+        .particles {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none; overflow: hidden;
+        }
+        .particle {
+            position: absolute; border-radius: 50%;
+            background: rgba(245, 158, 11, 0.15);
+            animation: floatUp linear infinite;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* ── Glass Cards ── */
+        .glass {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px) saturate(1.5);
+            -webkit-backdrop-filter: blur(20px) saturate(1.5);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .glass-strong {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(30px) saturate(1.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* ── Glow Effects ── */
+        .glow-amber { box-shadow: 0 0 40px rgba(245, 158, 11, 0.1), 0 0 80px rgba(245, 158, 11, 0.05); }
+        .glow-emerald { box-shadow: 0 0 40px rgba(16, 185, 129, 0.1), 0 0 80px rgba(16, 185, 129, 0.05); }
+        .glow-cyan { box-shadow: 0 0 40px rgba(6, 182, 212, 0.1); }
+        .glow-purple { box-shadow: 0 0 40px rgba(168, 85, 247, 0.1); }
+        .glow-rose { box-shadow: 0 0 40px rgba(244, 63, 94, 0.1); }
+
+        /* ── Stat Card Hover ── */
+        .stat-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; overflow: hidden;
+        }
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0; transition: opacity 0.4s;
+        }
+        .stat-card:hover::before { opacity: 1; }
+        .stat-card:hover { transform: translateY(-4px); }
+
+        /* ── Animated Counter ── */
+        .counter-value {
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ── Table Styles ── */
+        .data-table tbody tr {
+            transition: all 0.25s ease;
+        }
+        .data-table tbody tr:hover {
+            background: rgba(245, 158, 11, 0.04);
+        }
+        .data-table tbody tr:hover .url-cell {
+            color: #fbbf24;
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(245, 158, 11, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(245, 158, 11, 0.5); }
+
+        /* ── Pulse Ring ── */
+        .pulse-ring {
+            animation: pulseRing 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulseRing {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.5); }
+        }
+
+        /* ── Loading Skeleton ── */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(30,41,59,0.5) 25%, rgba(51,65,85,0.5) 50%, rgba(30,41,59,0.5) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ── Button Shine ── */
+        .btn-shine {
+            position: relative; overflow: hidden;
+        }
+        .btn-shine::after {
+            content: ''; position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
+            transition: all 0.6s;
+            transform: translateX(-100%);
+        }
+        .btn-shine:hover::after { transform: translateX(100%); }
+
+        /* ── Fade In Animation ── */
+        .fade-up {
+            animation: fadeUp 0.6s ease-out forwards;
+            opacity: 0; transform: translateY(20px);
+        }
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+
+        /* ── Grid Lines BG ── */
+        .grid-bg {
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* ── Auto-refresh timer bar ── */
+        .timer-bar {
+            height: 2px;
+            background: linear-gradient(90deg, #f59e0b, #10b981);
+            transition: width 1s linear;
+        }
+    </style>
+</head>
+<body class="min-h-screen grid-bg">
+
+    <!-- Animated Background -->
+    <div class="mesh-bg"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- Main Container -->
+    <div class="relative z-10 p-4 md:p-6 lg:p-8 max-w-[1440px] mx-auto space-y-6">
+
+        <!-- ═══════════ HEADER ═══════════ -->
+        <header class="glass-strong rounded-3xl p-6 md:p-8 glow-amber fade-up">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                
+                <!-- Brand -->
+                <div class="flex items-center gap-5">
+                    <div class="relative">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
+                            <i class="fa-solid fa-database text-2xl text-white"></i>
+                        </div>
+                        <div class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-slate-900">
+                            <div class="w-full h-full bg-emerald-400 rounded-full pulse-ring"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-black tracking-tight">
+                            <span class="bg-gradient-to-r from-amber-300 via-amber-400 to-orange-400 bg-clip-text text-transparent">ERA</span>
+                            <span class="text-slate-300 ml-2">Command Center</span>
+                        </h1>
+                        <p class="text-xs text-slate-500 mt-1 font-mono" id="dbUrlDisplay">
+                            <i class="fa-solid fa-link mr-1"></i> era-ka-store-default-rtdb.firebaseio.com
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center gap-3 w-full lg:w-auto">
+                    <!-- Auto Refresh Toggle -->
+                    <div class="glass rounded-xl px-4 py-2.5 flex items-center gap-3 border border-slate-700/50">
+                        <span class="text-xs text-slate-400 font-medium">Auto</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="autoRefreshToggle" checked class="sr-only peer" onchange="toggleAutoRefresh()">
+                            <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:bg-amber-500 transition-all duration-300 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div>
+                        </label>
+                        <span class="text-xs text-slate-500 font-mono" id="countdownText">30s</span>
+                    </div>
+
+                    <!-- Refresh Button -->
+                    <button onclick="fetchData()" id="refreshBtn" class="btn-shine px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-sm rounded-xl transition-all shadow-lg shadow-amber-500/25 flex items-center gap-2.5 active:scale-95">
+                        <i class="fa-solid fa-arrows-rotate text-xs" id="refreshIcon"></i>
+                        <span class="hidden sm:inline">Refresh</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Auto-refresh Timer Bar -->
+            <div class="mt-6 rounded-full overflow-hidden bg-slate-800/50">
+                <div class="timer-bar" id="timerBar" style="width: 100%"></div>
+            </div>
+        </header>
+
+        <!-- ═══════════ STATS GRID ═══════════ -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- Total Users -->
+            <div class="stat-card glass rounded-2xl p-5 glow-amber fade-up delay-1" style="--accent: #f59e0b">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                        <i class="fa-solid fa-users text-amber-400"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold text-amber-400/60 uppercase tracking-widest">Live</span>
+                </div>
+                <div class="counter-value text-3xl font-black" id="statUsers">0</div>
+                <p class="text-xs text-slate-500 mt-1 font-medium">Total Submissions</p>
+            </div>
+
+            <!-- Total URLs -->
+            <div class="stat-card glass rounded-2xl p-5 glow-emerald fade-up delay-2" style="--accent: #10b981">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                        <i class="fa-solid fa-link text-emerald-400"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold text-emerald-400/60 uppercase tracking-widest">Found</span>
+                </div>
+                <div class="counter-value text-3xl font-black" id="statUrls">0</div>
+                <p class="text-xs text-slate-500 mt-1 font-medium">URLs Extracted</p>
+            </div>
+
+            <!-- Unique URLs -->
+            <div class="stat-card glass rounded-2xl p-5 glow-cyan fade-up delay-3" style="--accent: #06b6d4">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                        <i class="fa-solid fa-fingerprint text-cyan-400"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold text-cyan-400/60 uppercase tracking-widest">Unique</span>
+                </div>
+                <div class="counter-value text-3xl font-black" id="statUnique">0</div>
+                <p class="text-xs text-slate-500 mt-1 font-medium">Unique URLs</p>
+            </div>
+
+            <!-- Last Sync -->
+            <div class="stat-card glass rounded-2xl p-5 glow-purple fade-up delay-4" style="--accent: #a855f7">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                        <i class="fa-solid fa-satellite-dish text-purple-400"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold text-purple-400/60 uppercase tracking-widest">Sync</span>
+                </div>
+                <div class="text-lg font-bold text-slate-200 font-mono" id="statTime">--:--:--</div>
+                <p class="text-xs text-slate-500 mt-1 font-medium">Last Updated</p>
+            </div>
+        </div>
+
+        <!-- ═══════════ MAIN DATA PANEL ═══════════ -->
+        <div class="glass-strong rounded-3xl overflow-hidden fade-up delay-5">
+            
+            <!-- Panel Header / Toolbar -->
+            <div class="p-5 md:p-6 border-b border-slate-800/60">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                            <i class="fa-solid fa-table-list text-amber-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-sm font-bold text-white">Extracted URLs Database</h2>
+                            <p class="text-[11px] text-slate-500">All Firebase RTDB URLs submitted by users</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                        <!-- Search -->
+                        <div class="relative flex-1 md:w-72">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 text-xs"></i>
+                            <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Search URL, key, date..."
+                                class="w-full pl-9 pr-4 py-2 bg-slate-900/80 border border-slate-700/50 rounded-xl text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 transition font-mono">
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <button onclick="copyAll()" class="btn-shine px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-2 active:scale-95 shadow-lg shadow-emerald-600/20">
+                            <i class="fa-regular fa-copy"></i> Copy All
+                        </button>
+                        <button onclick="exportTXT()" class="px-3.5 py-2 glass hover:bg-slate-700/50 text-slate-300 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 border border-slate-700/50 active:scale-95">
+                            <i class="fa-solid fa-file-lines"></i> TXT
+                        </button>
+                        <button onclick="exportCSV()" class="px-3.5 py-2 glass hover:bg-slate-700/50 text-slate-300 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 border border-slate-700/50 active:scale-95">
+                            <i class="fa-solid fa-file-csv"></i> CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="overflow-x-auto max-h-[520px] overflow-y-auto">
+                <table class="data-table w-full text-left text-xs">
+                    <thead class="bg-slate-900/90 sticky top-0 backdrop-blur-xl z-20">
+                        <tr class="text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
+                            <th class="p-4 pl-6 w-12">#</th>
+                            <th class="p-4">Firebase RTDB URL</th>
+                            <th class="p-4 hidden md:table-cell">API Key</th>
+                            <th class="p-4 hidden lg:table-cell">Date</th>
+                            <th class="p-4 hidden lg:table-cell">Device</th>
+                            <th class="p-4 text-right pr-6 w-20">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-800/40">
+                        <!-- Loading Skeleton -->
+                        <tr><td colspan="6" class="p-6 space-y-3">
+                            <div class="skeleton h-8 w-full"></div>
+                            <div class="skeleton h-8 w-5/6"></div>
+                            <div class="skeleton h-8 w-4/6"></div>
+                            <div class="skeleton h-8 w-full"></div>
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table Footer -->
+            <div class="p-4 border-t border-slate-800/60 flex justify-between items-center text-[11px] text-slate-500">
+                <span id="footerInfo">Loading data...</span>
+                <span class="font-mono" id="footerSize">-- KB</span>
+            </div>
+        </div>
+
+        <!-- ═══════════ FOOTER ═══════════ -->
+        <footer class="text-center text-[11px] text-slate-600 py-4 font-mono">
+            ERA Firebase Command Center &bull; Real-Time Data Monitor &bull; v2.0 Pro
+        </footer>
+    </div>
+
+    <!-- ═══════════ TOAST ═══════════ -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-500">
+        <div class="glass-strong rounded-2xl px-5 py-3.5 flex items-center gap-3 border border-emerald-500/20 shadow-2xl shadow-emerald-500/10">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                <i class="fa-solid fa-check text-emerald-400 text-sm"></i>
+            </div>
+            <span class="text-sm font-semibold text-slate-200" id="toastMsg">Done!</span>
+        </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SCRIPT -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <script>
+        // ── CONFIG ──
+        const FIREBASE_URL = "https://era-ka-store-default-rtdb.firebaseio.com";
+        const NODE = "bot_data";
+        const AUTO_REFRESH_SEC = 30;
+
+        let allData = [];
+        let autoRefreshInterval = null;
+        let countdownInterval = null;
+        let countdown = AUTO_REFRESH_SEC;
+
+        // ── PARTICLES ──
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 25; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = Math.random() * 4 + 2;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.animationDuration = (Math.random() * 15 + 10) + 's';
+                p.style.animationDelay = (Math.random() * 10) + 's';
+                p.style.opacity = Math.random() * 0.3 + 0.1;
+                container.appendChild(p);
+            }
+        }
+        createParticles();
+
+        // ── TOAST ──
+        function toast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.classList.remove('translate-y-24', 'opacity-0');
+            t.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                t.classList.add('translate-y-24', 'opacity-0');
+                t.classList.remove('translate-y-0', 'opacity-100');
+            }, 2500);
+        }
+
+        // ── ANIMATED COUNTER ──
+        function animateCounter(el, target) {
+            const duration = 800;
+            const start = parseInt(el.innerText) || 0;
+            const diff = target - start;
+            if (diff === 0) return;
+            const startTime = performance.now();
+            function step(now) {
+                const progress = Math.min((now - startTime) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                el.innerText = Math.round(start + diff * eased);
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        // ── FETCH DATA ──
+        async function fetchData() {
+            const icon = document.getElementById('refreshIcon');
+            icon.classList.add('fa-spin');
+
+            const url = `${FIREBASE_URL}/${NODE}.json`;
+
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const raw = await res.json();
+                icon.classList.remove('fa-spin');
+
+                if (!raw) {
+                    renderEmpty("Database empty hai.");
+                    updateStats(0, 0, 0);
+                    return;
+                }
+
+                // Estimate size
+                const sizeKB = (new Blob([JSON.stringify(raw)]).size / 1024).toFixed(1);
+                document.getElementById('footerSize').innerText = sizeKB + ' KB';
+
+                parseData(raw);
+
+            } catch (err) {
+                icon.classList.remove('fa-spin');
+                renderEmpty(`Connection Error: ${err.message}`);
+            }
+        }
+
+        // ── PARSE ──
+        function parseData(data) {
+            allData = [];
+            let totalUsers = 0;
+
+            for (let key in data) {
+                totalUsers++;
+                const item = data[key];
+                if (item && typeof item === 'object' && item.url) {
+                    allData.push({
+                        id: key,
+                        url: item.url.trim(),
+                        date: item.date || item.logged_at || '—',
+                        apiKey: item.key || '—',
+                        device: item.device ? (item.device.platform || '—') : '—'
+                    });
+                }
+            }
+
+            const uniqueSet = new Set(allData.map(d => d.url));
+            updateStats(totalUsers, allData.length, uniqueSet.size);
+            renderTable(allData);
+            toast(`${allData.length} URLs loaded from ${totalUsers} users`);
+        }
+
+        // ── UPDATE STATS ──
+        function updateStats(users, urls, unique) {
+            animateCounter(document.getElementById('statUsers'), users);
+            animateCounter(document.getElementById('statUrls'), urls);
+            animateCounter(document.getElementById('statUnique'), unique);
+            document.getElementById('statTime').innerText = new Date().toLocaleTimeString('en-IN', { hour12: false });
+            document.getElementById('footerInfo').innerText = `Showing ${urls} of ${users} total records`;
+        }
+
+        // ── RENDER TABLE ──
+        function renderTable(list) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            if (!list.length) {
+                renderEmpty("Koi URL nahi mila.");
+                return;
+            }
+
+            list.forEach((item, i) => {
+                const tr = document.createElement('tr');
+                tr.className = 'group';
+                tr.innerHTML = `
+                    <td class="p-4 pl-6 text-slate-600 font-mono">${i + 1}</td>
+                    <td class="p-4">
+                        <span class="url-cell text-amber-400/80 font-mono text-[11px] break-all transition-colors select-all">${esc(item.url)}</span>
+                    </td>
+                    <td class="p-4 hidden md:table-cell">
+                        <span class="text-slate-500 font-mono text-[10px] truncate block max-w-[140px]">${esc(item.apiKey)}</span>
+                    </td>
+                    <td class="p-4 hidden lg:table-cell text-slate-500 whitespace-nowrap">${esc(item.date)}</td>
+                    <td class="p-4 hidden lg:table-cell">
+                        <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 text-[10px] font-medium">${esc(item.device)}</span>
+                    </td>
+                    <td class="p-4 text-right pr-6">
+                        <button onclick="copyOne('${esc(item.url)}')" class="opacity-0 group-hover:opacity-100 px-2.5 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500 hover:text-slate-950 text-amber-400 text-[10px] font-bold transition-all active:scale-90">
+                            <i class="fa-regular fa-copy mr-1"></i>Copy
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderEmpty(msg) {
+            document.getElementById('tableBody').innerHTML = `
+                <tr><td colspan="6" class="p-12 text-center">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-400/50 text-3xl mb-3"></i>
+                    <p class="text-slate-500 text-sm">${msg}</p>
+                </td></tr>`;
+        }
+
+        // ── FILTER ──
+        function filterData() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allData.filter(d =>
+                d.url.toLowerCase().includes(q) ||
+                d.apiKey.toLowerCase().includes(q) ||
+                d.date.toLowerCase().includes(q) ||
+                d.device.toLowerCase().includes(q)
+            );
+            renderTable(filtered);
+        }
+
+        // ── COPY ──
+        function copyOne(url) {
+            navigator.clipboard.writeText(url);
+            toast("URL Copied!");
+        }
+        function copyAll() {
+            if (!allData.length) return;
+            navigator.clipboard.writeText(allData.map(d => d.url).join('\n'));
+            toast(`All ${allData.length} URLs Copied!`);
+        }
+
+        // ── EXPORT ──
+        function exportTXT() {
+            if (!allData.length) return;
+            download(allData.map(d => d.url).join('\n'), `urls_${Date.now()}.txt`, 'text/plain');
+        }
+        function exportCSV() {
+            if (!allData.length) return;
+            let csv = "No,URL,API_Key,Date,Device\n";
+            allData.forEach((d, i) => csv += `"${i+1}","${d.url}","${d.apiKey}","${d.date}","${d.device}"\n`);
+            download(csv, `urls_${Date.now()}.csv`, 'text/csv');
+        }
+        function download(content, name, type) {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([content], { type }));
+            a.download = name;
+            a.click();
+            toast("File Downloaded!");
+        }
+
+        // ── AUTO REFRESH ──
+        function toggleAutoRefresh() {
+            const on = document.getElementById('autoRefreshToggle').checked;
+            if (on) startAutoRefresh();
+            else stopAutoRefresh();
+        }
+        function startAutoRefresh() {
+            stopAutoRefresh();
+            countdown = AUTO_REFRESH_SEC;
+            countdownInterval = setInterval(() => {
+                countdown--;
+                document.getElementById('countdownText').innerText = countdown + 's';
+                document.getElementById('timerBar').style.width = ((countdown / AUTO_REFRESH_SEC) * 100) + '%';
+                if (countdown <= 0) {
+                    fetchData();
+                    countdown = AUTO_REFRESH_SEC;
+                }
+            }, 1000);
+        }
+        function stopAutoRefresh() {
+            clearInterval(countdownInterval);
+            document.getElementById('countdownText').innerText = 'OFF';
+            document.getElementById('timerBar').style.width = '0%';
+        }
+
+        // ── UTIL ──
+        function esc(s) {
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+
+        // ── INIT ──
+        window.onload = () => {
+            fetchData();
+            startAutoRefresh();
+        };
+    </script>
+</body>
+</html>
